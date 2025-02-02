@@ -18,6 +18,7 @@ Current network: Testnet
     "privateKey": "suiprivkey1qp2wz6plr997wyqpd3el4kknt3jq2q096jtcvr4f5h62g9yrztgpsf3vhk0"
   }
   ```
+  ![image](https://github.com/user-attachments/assets/5a9a448f-28f0-43de-a5b2-2e88b5efade0)
 
 ## 📂 Project Structure
 
