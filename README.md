@@ -1,70 +1,27 @@
 # 🚀Swap API
 
-This project using [Jupiter Station](https://station.jup.ag/docs/) to implement Solana network token swapping 
+This project using [Cetus API](https://station.jup.ag/docs/) to implement Sui network token swapping
+Current network: Testnet
 
-## POST /jupiterSwap
+## POST /cetusSwap
+
 - Description: Perform a token swap.
 - Body Parameters:
   - privateKey(string): User's private key.
-  - inputMint(string): The address of the input token.
-  - outputMint(string): The address of the output token.
+  - poolId: The address of pair-token-pool id.
   - inputAmount(number): The address of the output token.
-- Ex: swap 1USDC -> SOL
-    
-  ![image](https://github.com/user-attachments/assets/517ca291-adf1-40c4-a108-21e06913b98d)
-
-
-- Response: Returns the swap result.
-  - Response structure: {code: number, status: boolean, data: string}
-  - Successfull: {code: 200, status: true, data: ```transaction_id``` } 
-  - Fail: {code: , status: false, data: ```error_message``` } - when the input is wrong or can not submit tx to blockchain (Congestion)
-  - ⚠️ Code 500: Submit transaction timeout, neet to retry.
-  - Code 403: Do not have enough balance.
-
-  ![image](https://github.com/user-attachments/assets/41a5787a-68bb-41aa-983f-b575e3ef13fc)
-
-
-## POST /jupiterLimitOrder  value transfer must > $5 ⚠️ Chỗ này lượng sol đổi ra giá usdc phải > $5, usdc input > 5USDC
-- Description: Set up a limit order for token swaps.
-- Body Parameters:
-  - privateKey(string): User's private key.
-  - inputMint(string): The address of the input token.
-  - outputMint(string): The address of the output token.
-  - makingAmount(number): The amount of input token.
-  - takingAmount(number): The amount of the output token.
-- Ex: create limit order for swap 0.025SOL -> 5.25USDC
-  
-  ![image](https://github.com/user-attachments/assets/decf068b-adf6-40eb-b012-773b3646e6cd)
-
-
-- Response: Returns the limit order details.
-  - Successfull: {code: 200, status: true, data: ```transaction_id``` } 
-  - Fail: {code: , status: false, data: ```error_message``` }
-  - Code 403: Do not have enough balance.
-
-
-## POST /cancelOrders: 
-- Description: cancel all the orders
-- Body Parameters:
-  - privateKey(string): User's private key.
-- Response:
-  - Successfull: {code: 200, status: true, data: ```transaction_id``` }
-  - Fail: {code: , status: false, data: "No matching orders found" }
- 
-## POST /balance
-- Description: Get the balance of the given address.
-- Request Body:
-  - address: string - Wallet address
-  - tokenAddress: string - Token address
-- Response:
-  - Success: {balance: xxxx}
-  - Fauil: {balance:0}
-
-  ![image](https://github.com/user-attachments/assets/36f94258-c6dd-4e89-bc9c-f8ab608aa7e2)
-
+- Ex: swap .001SUI -> KITTY
+  ```json
+  {
+    "poolId": "0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e",
+    "inputAmount": 0.001,
+    "privateKey": "suiprivkey1qp2wz6plr997wyqpd3el4kknt3jq2q096jtcvr4f5h62g9yrztgpsf3vhk0"
+  }
+  ```
 
 ## 📂 Project Structure
-- ```src/ultils/init.ts``` : Init the wallet and keypair by giving private key
-- ```src/jupiter.ts``` : Jupiter Swap implementation
-- ```src/type.ts``` : Types
-- ```src/index.ts``` 
+
+- `src/sui/init.ts` : Init the wallet and keypair by giving private key
+- `src/sui/cetos.ts` : Cetos Swap implementation
+- `src/sui/type.ts` : Types
+- `src/index.ts`
