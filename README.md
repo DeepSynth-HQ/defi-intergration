@@ -1,6 +1,6 @@
 # 🚀Swap API
 
-This project using [Cetus API](https://station.jup.ag/docs/) to implement Sui network token swapping
+This project using [Cetus API](https://cetus-1.gitbook.io/cetus-docs) to implement Sui network token swapping
 Current network: Testnet
 
 ## POST /cetusSwap
