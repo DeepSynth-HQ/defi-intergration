@@ -17,7 +17,7 @@ app.use(
 );
 
 app.use(express.json({ limit: "10mb" }));
-app.post("/cetusSwap", async (_req, res) => {
+app.post("/swap", async (_req, res) => {
   const body: ICetusSwap = _req.body;
   const result = await cetusSwap(body);
   res.send(result);
