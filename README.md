@@ -3,15 +3,13 @@
 This project using [Cetus API](https://cetus-1.gitbook.io/cetus-docs) to implement Sui network token swapping
 Current network: Testnet
 
-**_🗒️Note:_**
-A pool contain a pair of token: token A and token B, by default the transaction will swap coin B -> A
-
 ## GET /balance
 
 - Description: Get balance of a token
 - Request Params:
   - address (string): user wallet address,
   - coinType (string): coin type, ex: 0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY, 0x2::sui::SUI.
+  - aToB (boolean): A pool contain a pair of token: token A and token B, by **True** the transaction will swap coin A -> B, **False** the transaction will swap coin B -> A
 - Ex: get SUI balance in 0x76d033c1a779f9a7984825a08ba632e97eba6954b1242cd7d87a4c0e261b1f25 wallet
   ```
     http://localhost:3000/balance?address=0x76d033c1a779f9a7984825a08ba632e97eba6954b1242cd7d87a4c0e261b1f25&coinType=0x2::sui::SUI
