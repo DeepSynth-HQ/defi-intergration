@@ -31,7 +31,61 @@ Current network: Testnet
 
   ```
 
-## POST /cetusSwap
+## GET /allTokens
+- Description: Get all balance of tokens by giving wallet address.
+- Request Params:
+  - address (string): user wallet address,
+- Ex: get balance in 0x76d033c1a779f9a7984825a08ba632e97eba6954b1242cd7d87a4c0e261b1f25 wallet
+  ```
+    http://localhost:3000/allTokens?address=0x76d033c1a779f9a7984825a08ba632e97eba6954b1242cd7d87a4c0e261b1f25
+  ```
+- Sample response:
+  ```json
+    {
+    "code": 200,
+    "status": true,
+    "data": [
+        {
+            "symbol": "SUI",
+            "coinType": "0x2::sui::SUI",
+            "coinObjectId": "0x14a3e1c348e3496e8b0cd3b26b53072b80708ef02c76d9fb60bba51fb9554e78",
+            "version": "359688066",
+            "digest": "5kKjvWrvYw9XsK9pCrynvtfYQj74mMLvgDHkMGhbz37d",
+            "balance": 0.094953625,
+            "previousTransaction": "C8LCZywDQYbLFHX5Rhz6BxgqzLzGjiyMZjVL5bKnoJtc"
+        },
+        {
+            "symbol": "KTY",
+            "coinType": "0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY",
+            "coinObjectId": "0x9b350b663fdb26398df4334c78ae0dac021fe491896f298207caaeda7ed22341",
+            "version": "341149980",
+            "digest": "7jN1yHkWWNj4zXdbW1SwZwaeQneQLSyqFRVg2NZ5fJXH",
+            "balance": 10,
+            "previousTransaction": "6bT1LEE7bKeXRxhA4wfifWxpe8GsYR1UFfQDcVej8vPh"
+        },
+        {
+            "symbol": "DEFAI",
+            "coinType": "0xca148fddf326b09b1ef3e5fe8e81c2c8568f9e72c0083d651f1652528263a82f::defai::DEFAI",
+            "coinObjectId": "0x4f1cca80d92b98af1d2e219c647b6e2b9a2d382a767b07b3ef85e04d6310da02",
+            "version": "307127543",
+            "digest": "3E9FmwHqxGUrd6U5fJMdyhUVfTjqASg38Wmq2xANppQh",
+            "balance": 10000,
+            "previousTransaction": "DbtHmRGstoVPSfHZPjyGXSMF5Nak6KpmH5JQeeRgAxDg"
+        }
+    ]
+  }
+  ```
+- Error:
+  - Invalid address:
+  ```json
+    {
+    "code": 401,
+    "status": false,
+    "data": "Error fetching balance"
+  }
+  ```
+
+## POST /swap
 
 - Description: Perform a token swap.
 - Body Parameters:
