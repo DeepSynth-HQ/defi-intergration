@@ -7,7 +7,7 @@ import {
   Pool,
 } from "@cetusprotocol/cetus-sui-clmm-sdk";
 import { createSigner, init } from "./init.js";
-import { ICetusSwap } from "./type.js";
+import { ICetusSwap, ICoinResponse } from "./type.js";
 import { stat } from "fs";
 
 // global config
@@ -58,8 +58,8 @@ export async function cetusSwap(param: ICetusSwap) {
     // create slippage
     const slippage = Percentage.fromDecimal(d(5));
     // get the decimals
-    const coinADecimals = await getTokenInfo(pool.coinTypeA);
-    const coinBDecimals = await getTokenInfo(pool.coinTypeB);
+    const coinADecimals = (await getTokenInfo(pool.coinTypeA))?.decimals;
+    const coinBDecimals = (await getTokenInfo(pool.coinTypeB))?.decimals;
     if (!coinADecimals || !coinBDecimals) {
       return { code: 400, data: "Error fetching coin info", status: false };
     }
@@ -153,7 +153,7 @@ async function balanceCheck(
 async function getTokenInfo(coinType: string) {
   try {
     const metadata = await client.getCoinMetadata({ coinType });
-    return metadata?.decimals;
+    return metadata;
   } catch (error) {
     return null;
   }
@@ -171,21 +171,48 @@ async function getTokenBalance(walletAddress: string, coinType: string) {
 
 export async function getUserBalance(address: string, coinType: string) {
   try {
-    const decimals = await getTokenInfo(coinType);
-    if (!decimals)
+    const tokenInfo = await getTokenInfo(coinType);
+    if (!tokenInfo)
       return { code: 400, data: "Error fetching coin info", status: false };
     const balance = await getTokenBalance(address, coinType);
     if (!balance)
       return { code: 400, data: "Error fetching balance", status: false };
     return {
       code: 200,
-      data: `Balance: ${parseFloat(balance) / 10 ** decimals}`,
+      data: `Balance: ${parseFloat(balance) / 10 ** tokenInfo.decimals}`,
       status: true,
     };
   } catch (error) {
     return { code: 400, data: "Error fetching balance", status: false };
   }
 }
+
+export async function getWalletBalances(address: string) {
+  try {
+    const balance = await client.getAllCoins({ owner: address });
+    const validCoins = balance.data
+      .map((coin: ICoinResponse) =>
+        parseFloat(coin.balance) > 0 ? coin : null
+      )
+      .filter((coin) => coin !== null);
+    const formatedCoins = await Promise.all(
+      validCoins.map(async (coin) => {
+        if (!coin) return null;
+        const tokenInfo = await getTokenInfo(coin.coinType);
+        if (!tokenInfo || !coin.balance) return null;
+        return {
+          symbol: tokenInfo.symbol,
+          ...coin,
+          balance: parseFloat(coin.balance) / 10 ** tokenInfo.decimals,
+        };
+      })
+    );
+    return { code: 200, status: true, data: formatedCoins };
+  } catch (error) {
+    return { code: 401, status: false, data: "Error fetching balance" };
+  }
+}
+
 // 0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e
 // "poolAddress": "0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e",
 // "poolType": "0x0c7ae833c220aa73a3643a0d508afa4ac5d50d97312ea4584e35f9eb21b9df12::pool::Pool<0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY, 0x2::sui::SUI>",

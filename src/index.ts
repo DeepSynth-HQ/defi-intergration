@@ -3,7 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 
 import { IBalanceRequest, ICetusSwap } from "./sui/type.js";
-import { cetusSwap, getUserBalance } from "./sui/cetus.js";
+import { cetusSwap, getUserBalance, getWalletBalances } from "./sui/cetus.js";
 
 //init keypair
 
@@ -39,6 +39,11 @@ app.get("/balance", async (_req, res) => {
   } catch (e) {
     res.send({ code: 500, data: "Error when fetch blance", status: false });
   }
+});
+
+app.get("/allTokens", async (_req, res) => {
+  const result = await getWalletBalances((_req.query.address as string) || "s");
+  res.send(result);
 });
 
 app.listen(3000, () => {
