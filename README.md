@@ -3,6 +3,10 @@
 This project using [Cetus API](https://cetus-1.gitbook.io/cetus-docs) to implement Sui network token swapping
 Current network: Testnet
 
+***🗒️Note:***
+A pool contain a pair of token: token A and token B, by default the transaction will swap coin B -> A
+
+
 ## POST /cetusSwap
 
 - Description: Perform a token swap.
@@ -20,6 +24,25 @@ Current network: Testnet
   ```
   ![image](https://github.com/user-attachments/assets/5a9a448f-28f0-43de-a5b2-2e88b5efade0)
 
+- Error:
+  - Pool id is not valid
+    ```json
+      { "code": 400, "message": "Error fetching coin info", "status": false }
+    ```
+    ```json
+    {
+        "code": 401, "message": "Pool not found", "status": false,
+      }
+    ```
+  
+  - Do not have enough balance
+    ```json
+    { "code": 400, "message": "Insufficient balance", "status": false }
+    ```
+  - Wrong user wallet address:
+    ```json
+    { "code": 400, "message": "Error fetching coin info", "status": false };
+    ```
 ## 📂 Project Structure
 
 - `src/sui/init.ts` : Init the wallet and keypair by giving private key
