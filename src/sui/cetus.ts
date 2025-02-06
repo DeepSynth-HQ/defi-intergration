@@ -227,7 +227,7 @@ export async function getTokenInfoByName(name: string) {
     });
     if (tokens.length === 0)
       return { code: 400, data: "Token not found", status: false };
-    return { code: 200, data: tokens, status: false };
+    return { code: 200, data: tokens, status: true };
   } catch (error) {
     return { code: 400, data: "Error fetching token info", status: false };
   }
