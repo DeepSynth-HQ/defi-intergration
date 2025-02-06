@@ -85,6 +85,37 @@ Current network: Testnet
   }
   ```
 
+## GET /tokensByName
+- Description: Get tokens type by giving token name.
+- Request Params:
+  - name (string): token name,
+- Ex: get token type of SUI
+  ```
+    http://localhost:3000/tokensByName?name=SUI
+  ```
+- Sample response:
+  ```json
+
+    {
+    "code": 200,
+    "data": [
+        "0x2::sui::SUI",
+        "0x345c87af2754527599e4cc544b75345ed08d9447bebc90b0bbe65af69c1b343e::sui::SUI",
+        "0x35513b32954530ef14dbfeeeb6ae282cf691482a1359f254ba2b1f6bab088f40::sui::SUI"
+    ],
+    "status": false
+  }
+  ```
+- Token not found:
+  ```json
+
+    {
+    "code": 400,
+    "data": "Token not found",
+    "status": false
+  }
+  ```
+
 ## POST /swap
 
 - Description: Perform a token swap.
