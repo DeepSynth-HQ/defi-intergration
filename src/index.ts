@@ -51,7 +51,7 @@ app.get("/allTokens", async (_req, res) => {
   res.send(result);
 });
 
-app.get("/tokenByName", async (_req, res) => {
+app.get("/tokensByName", async (_req, res) => {
   const result = await getTokenInfoByName((_req.query.name as string) || "SUI");
   res.send(result);
 });
