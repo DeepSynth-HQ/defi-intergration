@@ -3,7 +3,12 @@ import express from "express";
 import dotenv from "dotenv";
 
 import { IBalanceRequest, ICetusSwap } from "./sui/type.js";
-import { cetusSwap, getUserBalance, getWalletBalances } from "./sui/cetus.js";
+import {
+  cetusSwap,
+  getTokenInfoByName,
+  getUserBalance,
+  getWalletBalances,
+} from "./sui/cetus.js";
 
 //init keypair
 
@@ -43,6 +48,11 @@ app.get("/balance", async (_req, res) => {
 
 app.get("/allTokens", async (_req, res) => {
   const result = await getWalletBalances((_req.query.address as string) || "s");
+  res.send(result);
+});
+
+app.get("/tokenByName", async (_req, res) => {
+  const result = await getTokenInfoByName((_req.query.name as string) || "SUI");
   res.send(result);
 });
 

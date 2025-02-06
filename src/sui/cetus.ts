@@ -213,6 +213,26 @@ export async function getWalletBalances(address: string) {
   }
 }
 
+export async function getTokenInfoByName(name: string) {
+  try {
+    let tokens: string[] = [];
+    const tokenInfo = await cetusClmmSDK.Pool.getPoolsWithPage();
+    tokenInfo.forEach((pool) => {
+      if (pool.coinTypeA.split("::")[2] == name)
+        if (!tokens.find((token) => token === pool.coinTypeA))
+          tokens.push(pool.coinTypeA);
+      if (pool.coinTypeB.split("::")[2] == name)
+        if (!tokens.find((token) => token === pool.coinTypeB))
+          tokens.push(pool.coinTypeB);
+    });
+    if (tokens.length === 0)
+      return { code: 400, data: "Token not found", status: false };
+    return { code: 200, data: tokens, status: false };
+  } catch (error) {
+    return { code: 400, data: "Error fetching token info", status: false };
+  }
+}
+
 // 0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e
 // "poolAddress": "0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e",
 // "poolType": "0x0c7ae833c220aa73a3643a0d508afa4ac5d50d97312ea4584e35f9eb21b9df12::pool::Pool<0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY, 0x2::sui::SUI>",
