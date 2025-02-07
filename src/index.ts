@@ -58,7 +58,7 @@ app.get("/tokensByName", async (_req, res) => {
   res.send(result);
 });
 
-app.get("/getPools", async (_req, res) => {
+app.get("/getPool", async (_req, res) => {
   const result = await getPools(
     _req.query.coinA as string,
     _req.query.coinB as string
