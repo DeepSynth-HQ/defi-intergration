@@ -85,6 +85,32 @@ Current network: Testnet
   }
   ```
 
+## GET /getPool
+- Description: Get a pool token info by given 2 name of token.
+- Request Params:
+  - coinA (string): tokenA name,
+  - coinB (string): tokenB name,
+- Ex: get balance in 0x76d033c1a779f9a7984825a08ba632e97eba6954b1242cd7d87a4c0e261b1f25 wallet
+  ```
+    http://localhost:3000/getPools?coinA=USDC&coinB=SUI
+  ```
+- Sample response:
+```json
+  {
+  "code": 200,
+  "data": {
+    "poolAddress": "0x6ba3a7439c945bb4f75dcf2bad834b92a1d7e6cacffa09e3a72d4b52aa6630c6",
+    "coinTypeA": "0x0588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96::usdc::USDC",
+    "coinTypeB": "0x2::sui::SUI",
+    "coinAmountA": "104824743929",
+    "coinAmountB": "10832917773642",
+    "liquidity": "5759206727553"
+  },
+  "status": true
+}
+
+```
+
 ## GET /tokensByName
 - Description: Get tokens type by giving token name.
 - Request Params:
