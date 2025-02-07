@@ -2,9 +2,11 @@ import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
 
-import { IBalanceRequest, ICetusSwap } from "./sui/type.js";
+import { IBalanceRequest, ICetusSwap, ICreatePool } from "./sui/type.js";
 import {
   cetusSwap,
+  createClmmPool,
+  getPoolInfo,
   getPools,
   getTokenInfoByName,
   getUsdcPool,
@@ -64,6 +66,21 @@ app.get("/getPool", async (_req, res) => {
     _req.query.coinB as string
   );
   res.send(result);
+});
+
+app.get("/poolInfo", async (_req, res) => {
+  const result = await getPoolInfo(_req.query.poolId as string);
+  res.send(result);
+});
+
+app.post("/createPool", async (_req, res) => {
+  try {
+    const body = _req.body as ICreatePool;
+    const result = await createClmmPool(body);
+    res.send(result);
+  } catch (e) {
+    res.send({ code: 401, data: "Invalid Params fetch blance", status: false });
+  }
 });
 
 app.listen(3000, () => {

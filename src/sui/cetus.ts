@@ -5,9 +5,11 @@ import {
   d,
   Percentage,
   Pool,
+  ClmmPoolUtil,
+  TickMath,
 } from "@cetusprotocol/cetus-sui-clmm-sdk";
 import { createSigner, init } from "./init.js";
-import { ICetusSwap, ICoinResponse } from "./type.js";
+import { ICetusSwap, ICoinResponse, ICreatePool } from "./type.js";
 import { stat } from "fs";
 
 // global config
@@ -272,21 +274,135 @@ export async function getPools(coinA: string, coinB: string) {
   }
 }
 
+export async function createClmmPool(params: ICreatePool) {
+  const signer = createSigner(params.privateKey);
+  if (!signer)
+    return { code: 400, data: "Private key is invalid", status: false };
+  try {
+    // initialize sqrt_price
+    const initialize_sqrt_price = TickMath.priceToSqrtPriceX64(
+      d(1.2),
+      6,
+      6
+    ).toString();
+    const tick_spacing = 2;
+    const current_tick_index = TickMath.sqrtPriceX64ToTickIndex(
+      new BN(initialize_sqrt_price)
+    );
+    // build tick range
+    const tick_lower = TickMath.getPrevInitializableTickIndex(
+      new BN(current_tick_index).toNumber(),
+      new BN(tick_spacing).toNumber()
+    );
+    const tick_upper = TickMath.getNextInitializableTickIndex(
+      new BN(current_tick_index).toNumber(),
+      new BN(tick_spacing).toNumber()
+    );
+    // input token amount
+    const fix_coin_amount = new BN(200);
+    // input token amount is token a
+    const fix_amount_a = true;
+    // slippage value 0.05 means 5%
+    const slippage = 0.05;
+    const cur_sqrt_price = new BN(initialize_sqrt_price);
+    // Estimate liquidity and token amount from one amounts
+    const liquidityInput = ClmmPoolUtil.estLiquidityAndcoinAmountFromOneAmounts(
+      tick_lower,
+      tick_upper,
+      fix_coin_amount,
+      fix_amount_a,
+      true,
+      slippage,
+      cur_sqrt_price
+    );
+    console.log("liquidityInput: ", liquidityInput);
+    // Estimate  token a and token b amount
+    const amount_a = fix_amount_a
+      ? fix_coin_amount.toNumber()
+      : liquidityInput.tokenMaxA.toNumber();
+    const amount_b = fix_amount_a
+      ? liquidityInput.tokenMaxB.toNumber()
+      : fix_coin_amount.toNumber();
+
+    //valiudate cointtype
+    try {
+      const coinAMetadata = await client.getCoinMetadata({
+        coinType: params.coinTypeA,
+      });
+      const coinBMetadata = await client.getCoinMetadata({
+        coinType: params.coinTypeB,
+      });
+      if (!coinAMetadata || !coinBMetadata) {
+        return { code: 400, data: "Token type is not valid", status: false };
+      }
+    } catch (e) {
+      return { code: 400, data: "Token type is not valid", status: false };
+    }
+    const coinMetadataA = await client.getCoinMetadata({
+      coinType: params.coinTypeA,
+    });
+    const coinMetadataB = await client.getCoinMetadata({
+      coinType: params.coinTypeB,
+    });
+    cetusClmmSDK.senderAddress = signer.toSuiAddress();
+
+    const coinMetadataAID = coinMetadataA?.id;
+    const coinMetadataBID = coinMetadataB?.id;
+    const creatPoolPayload =
+      await cetusClmmSDK.Pool.createPoolTransactionPayload({
+        coinTypeA: params.coinTypeA,
+        coinTypeB: params.coinTypeB,
+        tick_spacing: tick_spacing,
+        initialize_sqrt_price: initialize_sqrt_price,
+        uri: params.poolUri,
+        amount_a,
+        slippage,
+        amount_b,
+        fix_amount_a,
+        tick_lower,
+        tick_upper,
+        metadata_a: coinMetadataAID || "",
+        metadata_b: coinMetadataBID || "",
+      });
+    const res = await cetusClmmSDK.fullClient.sendTransaction(
+      signer,
+      creatPoolPayload
+    );
+    if (!res) {
+      return { code: 400, data: "Error creating pool", status: false };
+    }
+    return {
+      code: 200,
+      data: {
+        digest: res?.digest,
+        poolInfo: res?.events ? res?.events[0]?.parsedJson : {},
+      },
+      status: true,
+    };
+  } catch (e) {
+    return { code: 400, data: e, status: false };
+  }
+}
+
+export async function getPoolInfo(poolId: string) {
+  try {
+    const pool = await cetusClmmSDK.Pool.getPool(poolId);
+    return {
+      code: 200,
+      data: {
+        poolAddress: pool.poolAddress,
+        coinTypeA: pool.coinTypeA,
+        coinTypeB: pool.coinTypeB,
+        coinAmountA: pool.coinAmountA,
+        coinAmountB: pool.coinAmountB,
+        liquidity: pool.liquidity,
+      },
+      status: true,
+    };
+  } catch (error) {
+    return { code: 400, data: "Error fetching pool info", status: false };
+  }
+}
 //add find pool by token type, intergrate Suilend, get pool info by pool id
 // dung bluefin -> dua ra cac thong tin ve gia, ...
-// len chien luoc bu SUI
-
-// 0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e
-// "poolAddress": "0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e",
-// "poolType": "0x0c7ae833c220aa73a3643a0d508afa4ac5d50d97312ea4584e35f9eb21b9df12::pool::Pool<0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY, 0x2::sui::SUI>",
-// "coinTypeA": "0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY",
-// "coinTypeB": "0x2::sui::SUI",
-// "coinAmountA": "37531202737746483",
-// "coinAmountB": "19800000000",
-
-// "poolAddress": "0x876f3e598ee04bd36ce782503b2600c0de19d97d9ebaf8ce97a6b80827bee132",
-// "poolType": "0x0c7ae833c220aa73a3643a0d508afa4ac5d50d97312ea4584e35f9eb21b9df12::pool::Pool<0xb753a8ce0013418f366b20100a2befcfbcb3114a649899549282fdd9b7e7f908::earth::EARTH, 0x2::sui::SUI>",
-// "coinTypeA": "0xb753a8ce0013418f366b20100a2befcfbcb3114a649899549282fdd9b7e7f908::earth::EARTH",
-// "coinTypeB": "0x2::sui::SUI",
-// "coinAmountA": "1818181828181770",
-// "coinAmountB": "1644182",
+//2uGWq3px498V35jYwuMKm3mHGEsL3TQJP935xCoTxKqM

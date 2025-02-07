@@ -1,3 +1,4 @@
+import sui = require("@mysten/sui/transactions");
 export type ICetusSwap = {
   poolId: string;
   inputAmount: number;
@@ -17,4 +18,20 @@ export type ICoinResponse = {
   digest: string;
   balance: string;
   previousTransaction: string;
+};
+
+export type SwapArgs = {
+  fromCoinType: string;
+  toCoinType: string;
+  fromAmount?: number;
+  toAmount?: number;
+  maxSlippage: number;
+  txb: sui.Transaction;
+};
+
+export type ICreatePool = {
+  coinTypeA: string;
+  coinTypeB: string;
+  poolUri: string;
+  privateKey: string;
 };

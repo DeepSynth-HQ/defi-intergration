@@ -9,6 +9,7 @@
     "@cetusprotocol/cetus-sui-clmm-sdk": "^5.2.0",
     "@mysten/sui": "^1.21.1",
     "@project-serum/anchor": "^0.26.0",
+    "@suilend/sdk": "^1.1.38",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/node": "^18.16.3",
