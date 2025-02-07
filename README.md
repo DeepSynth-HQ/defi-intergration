@@ -13,7 +13,15 @@ Current network: Testnet
   ```
     http://localhost:3000/balance?address=0x76d033c1a779f9a7984825a08ba632e97eba6954b1242cd7d87a4c0e261b1f25&coinType=0x2::sui::SUI
   ```
-  ![image](https://github.com/user-attachments/assets/0a2ee9ae-d4df-4877-bc2c-3711518c5bda)
+ ```json
+
+  {
+  "code": 200,
+  "data": "Balance: 0.094953625",
+  "status": true
+}
+
+```
 
   
 - Error:
@@ -111,6 +119,45 @@ Current network: Testnet
 
 ```
 
+## GET /poolInfo
+
+- Description: Get pool info by given pool id
+- Request Params:
+  - poolId (string): pool id,
+- Ex: get pool info of 0x386d2660f5607305b2d87bb7974647d80646e4a57d9ebaa9d97e75abeb3e4ee1 
+  ```
+    http://localhost:3000/poolInfo?poolId=0x386d2660f5607305b2d87bb7974647d80646e4a57d9ebaa9d97e75abeb3e4ee1
+  ```
+- Sample response:
+  
+   ```json
+  
+    {
+    "code": 200,
+    "data": {
+      "poolAddress": "0x386d2660f5607305b2d87bb7974647d80646e4a57d9ebaa9d97e75abeb3e4ee1",
+      "coinTypeA": "0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY",
+      "coinTypeB": "0x3da5d2ed26c0148e2e4bb471ab78da7494b890d2baf4b5b46a5d93570c131b5b::wtoken::WTOKEN",
+      "coinAmountA": "200",
+      "coinAmountB": "1145",
+      "liquidity": "6320853"
+    },
+    "status": true
+  }
+  
+  ```
+
+- Error:
+  ```json
+  {"code":400,"data":"Error fetching pool info","status":false}
+
+  ```
+
+  ```json
+  
+
+  ```
+
 ## GET /tokensByName
 - Description: Get tokens type by giving token name.
 - Request Params:
@@ -188,6 +235,64 @@ Current network: Testnet
     ```json
     { "code": 400, "message": "Error fetching coin info", "status": false };
     ```
+
+## POST /createPool
+
+- Description: Create a new clmm pool.
+- Body Parameters:
+  - privateKey(string): User's private key.
+  - coinTypeA(string): Token type of token A.
+  - coinTypeB(string): Token type of token B.
+  - poolUri(string): The pool image uri.
+- Ex: Create a new pool for KTY token and WTOKEN token
+  ```json
+
+    {
+  "coinTypeA": "0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY",
+  "coinTypeB": "0x3da5d2ed26c0148e2e4bb471ab78da7494b890d2baf4b5b46a5d93570c131b5b::wtoken::WTOKEN",
+  "privateKey": "",
+  "poolUri": ""
+  }
+
+  
+  ```
+
+- Sample response:
+
+  ```json
+  {
+      "code": 200,
+      "data": {
+          "digest": "GEmyHZKuTauJsGLfw9DnqTATvL1cegcXCN3itP6s2iUm",
+          "poolInfo": {
+              "coin_type_a": "afcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY",
+              "coin_type_b": "3da5d2ed26c0148e2e4bb471ab78da7494b890d2baf4b5b46a5d93570c131b5b::wtoken::WTOKEN",
+              "pool_id": "0x386d2660f5607305b2d87bb7974647d80646e4a57d9ebaa9d97e75abeb3e4ee1",
+              "tick_spacing": 2
+          }
+      },
+      "status": true
+  }
+
+  ```
+- Error:
+   ```json
+   { "code": 400, "data": "Private key is invalid", "status": false }
+
+   ```
+
+   ```json
+
+   { "code": 400, "data": "Token type is not valid", "status": false }
+
+   ```
+
+  ```json
+  //when this account have created this pair
+  { "code": 400, "data": "Error creating pool", "status": false }
+
+  ```
+   
 
 ## 📂 Project Structure
 
