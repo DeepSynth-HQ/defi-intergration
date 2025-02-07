@@ -3,6 +3,15 @@
 This project using [Cetus API](https://cetus-1.gitbook.io/cetus-docs) to implement Sui network token swapping
 Current network: Testnet
 
+Endpoints: 
+1. GET /balance
+2. GET /allTokens
+3. GET /getPool
+4. GET /poolInfo
+5. GET /tokensByName
+6. POST /swap
+7. POST /createPool
+
 ## GET /balance
 
 - Description: Get balance of a token
@@ -155,7 +164,11 @@ Current network: Testnet
 
   ```json
   
-
+  {
+    "code": 400,
+    "data": "Error fetching pool info",
+    "status": false
+  }
   ```
 
 ## GET /tokensByName
