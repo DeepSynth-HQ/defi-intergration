@@ -5,7 +5,9 @@ import dotenv from "dotenv";
 import { IBalanceRequest, ICetusSwap } from "./sui/type.js";
 import {
   cetusSwap,
+  getPools,
   getTokenInfoByName,
+  getUsdcPool,
   getUserBalance,
   getWalletBalances,
 } from "./sui/cetus.js";
@@ -53,6 +55,14 @@ app.get("/allTokens", async (_req, res) => {
 
 app.get("/tokensByName", async (_req, res) => {
   const result = await getTokenInfoByName((_req.query.name as string) || "SUI");
+  res.send(result);
+});
+
+app.get("/getPools", async (_req, res) => {
+  const result = await getPools(
+    _req.query.coinA as string,
+    _req.query.coinB as string
+  );
   res.send(result);
 });
 

@@ -64,11 +64,12 @@ export async function cetusSwap(param: ICetusSwap) {
       return { code: 400, data: "Error fetching coin info", status: false };
     }
 
-    const scaleInputAmount = param.inputAmount * 10 ** coinBDecimals;
+    const scaleInputAmount =
+      param.inputAmount * 10 ** (param.aToB ? coinADecimals : coinBDecimals); // update
     // check user balance
     const balanceCheckResult = await balanceCheck(
       signer.toSuiAddress(),
-      param.aToB ? pool.coinTypeA : pool.coinTypeB,
+      param.aToB ? pool.coinTypeA : pool.coinTypeB, //update
       scaleInputAmount
     );
     if (balanceCheckResult === -1) {
@@ -145,6 +146,7 @@ async function balanceCheck(
     return -1;
   }
   if (parseInt(balance) < inputAMount) {
+    console.log(balance, inputAMount);
     return -2;
   }
   return 1;
@@ -232,6 +234,45 @@ export async function getTokenInfoByName(name: string) {
     return { code: 400, data: "Error fetching token info", status: false };
   }
 }
+
+export async function getUsdcPool(name: string) {}
+
+export async function getPools(coinA: string, coinB: string) {
+  try {
+    let pools: Pool[] = [];
+    const tokenInfo = await cetusClmmSDK.Pool.getPoolsWithPage();
+    tokenInfo.forEach((pool) => {
+      if (
+        pool.coinTypeA.split("::")[2] == coinA &&
+        pool.coinTypeB.split("::")[2] == coinB
+      )
+        pools.push(pool);
+    });
+
+    pools.sort((a, b) => {
+      return b.liquidity - a.liquidity;
+    });
+    const resPool = pools[0];
+    return {
+      code: 200,
+      data: {
+        poolAddress: resPool.poolAddress,
+        coinTypeA: resPool.coinTypeA,
+        coinTypeB: resPool.coinTypeB,
+        coinAmountA: resPool.coinAmountA,
+        coinAmountB: resPool.coinAmountB,
+        liquidity: resPool.liquidity,
+      },
+      status: true,
+    };
+  } catch (error) {
+    return { code: 400, data: "Error fetching token info", status: false };
+  }
+}
+
+//add find pool by token type, intergrate Suilend, get pool info by pool id
+// dung bluefin -> dua ra cac thong tin ve gia, ...
+// len chien luoc bu SUI
 
 // 0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e
 // "poolAddress": "0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e",
