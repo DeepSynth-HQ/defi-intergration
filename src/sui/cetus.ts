@@ -243,8 +243,10 @@ export async function getPools(coinA: string, coinB: string) {
     const tokenInfo = await cetusClmmSDK.Pool.getPoolsWithPage();
     tokenInfo.forEach((pool) => {
       if (
-        pool.coinTypeA.split("::")[2] == coinA &&
-        pool.coinTypeB.split("::")[2] == coinB
+        (pool.coinTypeA.split("::")[2] == coinA &&
+          pool.coinTypeB.split("::")[2] == coinB) ||
+        (pool.coinTypeA.split("::")[2] == coinB &&
+          pool.coinTypeB.split("::")[2] == coinA)
       )
         pools.push(pool);
     });
