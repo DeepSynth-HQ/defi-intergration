@@ -1,0 +1,67 @@
+name: CICD
+run-name: CICD - ${{ github.event.head_commit.message }}
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+env:
+  IMAGE: deepsynth/deepsynth-defi
+jobs:
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      actions: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
+      - name: Set Image tag
+        id: vars
+        run: echo "tag=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{env.IMAGE}}:${{steps.vars.outputs.tag}}
+          push: true
+          file: Dockerfile
+
+      - name: Checkout Infrastructure
+        uses: actions/checkout@v4
+        with:
+          repository: DeepSynth-HQ/deepsynth-infra
+          ref: main
+          token: ${{ secrets.PAT_ACCESS_TOKEN }}
+      - name: Update deployment
+        run: |
+          sed -i "s|image: .*|image: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE }}:${{ steps.vars.outputs.tag }}|" deployment/deepsynth-defi.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "chore(deepsynth-defi): Deploy deepsynth-defi:${{ steps.vars.outputs.tag }} for [${{ github.event.head_commit.message }}]"
+          git pull --rebase
+          git push
