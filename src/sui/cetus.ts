@@ -7,6 +7,10 @@ import {
   Pool,
   ClmmPoolUtil,
   TickMath,
+  toDecimalsAmount,
+  adjustForCoinSlippage,
+  AddLiquidityParams,
+  printTransaction,
 } from "@cetusprotocol/cetus-sui-clmm-sdk";
 import { createSigner, init } from "./init.js";
 import { ICetusSwap, ICoinResponse, ICreatePool } from "./type.js";
@@ -15,7 +19,7 @@ import { stat } from "fs";
 // global config
 
 const { client, cetusClmmSDK, byAmountIn } = init();
-
+const SOL_ADDRESS = "";
 export async function preswap(
   pool: Pool,
   inputAmount: number,
@@ -105,7 +109,7 @@ export async function cetusSwap(param: ICetusSwap) {
         amount: res.amount.toString(),
         amount_limit: amountLimit.toString(),
       });
-
+    tx.setGasBudget(500000000);
     try {
       await tx.transferObjects(
         [coinABs[0], coinABs[1]],
@@ -243,6 +247,7 @@ export async function getPools(coinA: string, coinB: string) {
   try {
     let pools: Pool[] = [];
     const tokenInfo = await cetusClmmSDK.Pool.getPoolsWithPage();
+    console.log(coinA, coinB);
     tokenInfo.forEach((pool) => {
       if (
         (pool.coinTypeA.split("::")[2] == coinA &&
@@ -252,11 +257,16 @@ export async function getPools(coinA: string, coinB: string) {
       )
         pools.push(pool);
     });
-
+    console.log("-----");
     pools.sort((a, b) => {
       return b.liquidity - a.liquidity;
     });
+    console.log("-----");
+    if (pools.length === 0)
+      return { code: 400, data: "Pool not found", status: false };
     const resPool = pools[0];
+    console.log("-----");
+
     return {
       code: 200,
       data: {
@@ -270,6 +280,7 @@ export async function getPools(coinA: string, coinB: string) {
       status: true,
     };
   } catch (error) {
+    console.log("error", error);
     return { code: 400, data: "Error fetching token info", status: false };
   }
 }
@@ -403,6 +414,121 @@ export async function getPoolInfo(poolId: string) {
     return { code: 400, data: "Error fetching pool info", status: false };
   }
 }
-//add find pool by token type, intergrate Suilend, get pool info by pool id
-// dung bluefin -> dua ra cac thong tin ve gia, ...
-//2uGWq3px498V35jYwuMKm3mHGEsL3TQJP935xCoTxKqM
+
+export async function addLiquidity(poolId: string, privateKey: string) {
+  const pool = await cetusClmmSDK.Pool.getPool(poolId);
+  if (!pool) return { code: 400, data: "Pool not found", status: false };
+  const curSqrtPrice = new BN(pool.current_sqrt_price);
+  const tickLower =
+    Math.floor(
+      pool.current_tick_index / parseInt(pool.tickSpacing.toString())
+    ) *
+      parseInt(pool.tickSpacing.toString()) -
+    10;
+  const tickUpper =
+    Math.floor(
+      pool.current_tick_index / parseInt(pool.tickSpacing.toString())
+    ) *
+      parseInt(pool.tickSpacing.toString()) +
+    10;
+  const slippageTolerance = new Percentage(new BN(5), new BN(100));
+
+  const totalAmount = "2";
+  //simulate token price
+  const tokenPriceA = "1.1";
+  const tokenPriceB = "1";
+
+  try {
+    const coinAmounts = ClmmPoolUtil.estCoinAmountsFromTotalAmount(
+      tickLower,
+      tickUpper,
+      curSqrtPrice,
+      totalAmount,
+      tokenPriceA,
+      tokenPriceB
+    );
+    const coinADecimals =
+      pool.coinTypeA == SOL_ADDRESS
+        ? 9
+        : (await getTokenInfo(pool.coinTypeA))?.decimals || 6;
+    const coinBDecimals =
+      pool.coinTypeB == SOL_ADDRESS
+        ? 9
+        : (await getTokenInfo(pool.coinTypeA))?.decimals || 6;
+    const amountA = parseInt(
+      coinAmounts.amountA.mul(10 ** coinADecimals).toString()
+    );
+    const amountB = parseInt(
+      coinAmounts.amountB.mul(10 ** coinBDecimals).toString()
+    );
+
+    const tokenAmounts = {
+      coinA: new BN(amountA.toString()),
+      coinB: new BN(amountB.toString()),
+    };
+    const liquidity = ClmmPoolUtil.estimateLiquidityFromcoinAmounts(
+      curSqrtPrice,
+      tickLower,
+      tickUpper,
+      tokenAmounts
+    );
+
+    const { tokenMaxA, tokenMaxB } = adjustForCoinSlippage(
+      tokenAmounts,
+      slippageTolerance,
+      true
+    );
+    const addLiquidityPayloadParams: AddLiquidityParams = {
+      coinTypeA: pool.coinTypeA,
+      coinTypeB: pool.coinTypeB,
+      pool_id: pool.poolAddress,
+      tick_lower: tickLower.toString(),
+      tick_upper: tickUpper.toString(),
+      delta_liquidity: liquidity.toString(),
+      max_amount_a: tokenMaxA.toString(),
+      max_amount_b: tokenMaxB.toString(),
+      pos_id: "",
+      rewarder_coin_types: [],
+      collect_fee: false,
+    };
+
+    try {
+      const signer = createSigner(privateKey);
+      if (!signer) {
+        return { code: 400, data: "Private key is invalid", status: false };
+      }
+      const balance = await getTokenBalance(
+        signer.toSuiAddress(),
+        pool.coinTypeA
+      );
+
+      const balance2 = await getTokenBalance(
+        signer.toSuiAddress(),
+        pool.coinTypeB
+      );
+      console.log("balance", balance, balance2, amountA, amountB);
+
+      cetusClmmSDK.senderAddress = signer.toSuiAddress();
+      const payload = await cetusClmmSDK.Position.createAddLiquidityPayload(
+        addLiquidityPayloadParams
+      );
+      // console.log("trx");
+      // await printTransaction(payload);
+
+      const transferTxn = await cetusClmmSDK.fullClient.sendTransaction(
+        signer,
+        payload
+      );
+
+      console.log("createAddLiquidityPayload: ", transferTxn);
+
+      return { code: 200, data: transferTxn || "undefined", status: true };
+    } catch (e) {
+      console.log(e);
+      return { code: 400, data: "Failed to sign transaction", status: false };
+    }
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+}

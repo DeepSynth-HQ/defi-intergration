@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import { IBalanceRequest, ICetusSwap, ICreatePool } from "./sui/type.js";
 import {
+  addLiquidity,
   cetusSwap,
   createClmmPool,
   getPoolInfo,
@@ -81,6 +82,14 @@ app.post("/createPool", async (_req, res) => {
   } catch (e) {
     res.send({ code: 401, data: "Invalid Params fetch blance", status: false });
   }
+});
+
+app.get("/getUsdcPool", async (_req, res) => {
+  const result = await addLiquidity(
+    _req.query.poolId as string,
+    _req.query.privateKey as string
+  );
+  res.send(result);
 });
 
 app.listen(3000, () => {
