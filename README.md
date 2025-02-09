@@ -305,7 +305,20 @@ Endpoints:
   { "code": 400, "data": "Error creating pool", "status": false }
 
   ```
-   
+
+  ## 7. POST /addLiquidity
+
+- Description: Add liquidity to a clmm pool.
+- Body Parameters:
+  - privateKey(string): User's private key.
+  - poolId(string): Token type of token A.
+  - totalAmount(number): Total liquidity.
+
+## 8. GET /getPoolByTVL
+- Description: Get top n pools with the highest tvl.
+- REquest Params:
+  - range(number): amount of pool to take.
+
 
 ## 📂 Project Structure
 
