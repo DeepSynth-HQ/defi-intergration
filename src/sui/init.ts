@@ -14,6 +14,32 @@ export function init() {
   return { client, cetusClmmSDK, a2b, byAmountIn };
 }
 
+export async function createAccount() {
+  try {
+    const keypair = new Ed25519Keypair();
+
+    return {
+      address: keypair.toSuiAddress(),
+      publicKey: keypair.getPublicKey().toBase64(),
+      privateKey: keypair.getSecretKey(),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function restoreAccount(privateKey: string) {
+  try {
+    const keypair = Ed25519Keypair.fromSecretKey(privateKey);
+    return {
+      address: keypair.toSuiAddress(),
+      publicKey: keypair.getPublicKey().toBase64(),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
 export function createSigner(privateKey: string) {
   try {
     const signer = Ed25519Keypair.fromSecretKey(privateKey);
