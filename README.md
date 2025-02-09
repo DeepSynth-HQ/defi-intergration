@@ -218,7 +218,7 @@ Endpoints:
   {
     "poolId": "0xac0f21905ef111da92f7d0e1efc12d14ba17a9798dc6f4e86be9901144b8c84e",
     "inputAmount": 0.01,
-    "privateKey": "suiprivkey1qp2wz6plr997wyqpd3el4kknt3jq2q096jtcvr4f5h62g9yrztgpsf3vhk0",
+    "privateKey": "",
     "aToB": false
   }
   ```
