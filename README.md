@@ -11,8 +11,10 @@ Endpoints:
 5. GET /tokensByName
 6. POST /swap
 7. POST /createPool
+8. POST /addLiquidity
+9. GET /getPoolByTVL
 
-## GET /balance
+## 1. GET /balance
 
 - Description: Get balance of a token
 - Request Params:
@@ -48,7 +50,7 @@ Endpoints:
 
   ```
 
-## GET /allTokens
+## 2. GET /allTokens
 - Description: Get all balance of tokens by giving wallet address.
 - Request Params:
   - address (string): user wallet address,
@@ -102,7 +104,7 @@ Endpoints:
   }
   ```
 
-## GET /getPool
+## 3. GET /getPool
 - Description: Get a pool token info by given 2 name of token.
 - Request Params:
   - coinA (string): tokenA name,
@@ -128,7 +130,7 @@ Endpoints:
 
 ```
 
-## GET /poolInfo
+## 4. GET /poolInfo
 
 - Description: Get pool info by given pool id
 - Request Params:
@@ -171,7 +173,7 @@ Endpoints:
   }
   ```
 
-## GET /tokensByName
+## 5. GET /tokensByName
 - Description: Get tokens type by giving token name.
 - Request Params:
   - name (string): token name,
@@ -202,7 +204,7 @@ Endpoints:
   }
   ```
 
-## POST /swap
+## 6. POST /swap
 
 - Description: Perform a token swap.
 - Body Parameters:
@@ -249,7 +251,7 @@ Endpoints:
     { "code": 400, "message": "Error fetching coin info", "status": false };
     ```
 
-## POST /createPool
+## 7. POST /createPool
 
 - Description: Create a new clmm pool.
 - Body Parameters:
@@ -306,7 +308,7 @@ Endpoints:
 
   ```
 
-  ## 7. POST /addLiquidity
+  ## 8. POST /addLiquidity
 
 - Description: Add liquidity to a clmm pool.
 - Body Parameters:
@@ -314,7 +316,7 @@ Endpoints:
   - poolId(string): Token type of token A.
   - totalAmount(number): Total liquidity.
 
-## 8. GET /getPoolByTVL
+## 9. GET /getPoolByTVL
 - Description: Get top n pools with the highest tvl.
 - REquest Params:
   - range(number): amount of pool to take.
