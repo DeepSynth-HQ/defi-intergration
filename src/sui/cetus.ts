@@ -18,8 +18,10 @@ import {
   ICetusSwap,
   ICoinResponse,
   ICreatePool,
+  ITransferRequest,
 } from "./type.js";
 import { stat } from "fs";
+import { TransactionBlock } from "@mysten/sui.js/transactions";
 
 // global config
 
@@ -163,7 +165,7 @@ async function balanceCheck(
   return 1;
 }
 
-async function getTokenInfo(coinType: string) {
+export async function getTokenInfo(coinType: string) {
   try {
     const metadata = await client.getCoinMetadata({ coinType });
     return metadata;
