@@ -8,47 +8,52 @@ import { getTokenInfo, getWalletBalances } from "./cetus.js";
 const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
 
 export async function transfer(param: ITransferRequest) {
-  const key = decodeSuiPrivateKey(param.privateKey);
-  const signer = Ed25519Keypair.fromSecretKey(key.secretKey);
-  if (!signer)
-    return { code: 400, data: "Private key is invalid", status: false };
-  // get token objects
-  const coins = await getWalletBalances(signer.toSuiAddress());
-  if (typeof coins.data == "string")
-    return { code: 400, data: coins.data, status: false };
-  const transferToken = coins.data.find(
+  try {
+    const key = decodeSuiPrivateKey(param.privateKey);
+    const signer = Ed25519Keypair.fromSecretKey(key.secretKey);
+    if (!signer)
+      return { code: 400, data: "Private key is invalid", status: false };
+    // get token objects
+    const coins = await getWalletBalances(signer.toSuiAddress());
+    if (typeof coins.data == "string")
+      return { code: 400, data: coins.data, status: false };
+    const transferToken = coins.data.find(
+      // @ts-ignore
+      (coin) => coin.coinType === param.token
+    );
+    if (!transferToken)
+      return { code: 400, data: "Token not found", status: false };
+    console.log(transferToken);
+
+    // check balance
     // @ts-ignore
-    (coin) => coin.coinType === param.token
-  );
-  if (!transferToken)
-    return { code: 400, data: "Token not found", status: false };
-  console.log(transferToken);
+    if (transferToken.balance < param.amount) {
+      return { code: 400, data: "Insufficient balance", status: false };
+    }
+    const tokenInfo = await getTokenInfo(param.token);
+    if (!tokenInfo)
+      return { code: 400, data: "Token not found", status: false };
 
-  // check balance
-  // @ts-ignore
-  if (transferToken.balance < param.amount) {
-    return { code: 400, data: "Insufficient balance", status: false };
+    const scaledAmount = param.amount * 10 ** tokenInfo.decimals;
+    const txb = new TransactionBlock();
+    txb.setGasBudget(500000000);
+    // @ts-ignore
+    const splitCoint = txb.splitCoins(txb.object(transferToken.coinObjectId), [
+      scaledAmount,
+    ]);
+    txb.transferObjects([splitCoint], txb.pure(param.to));
+    const result = await suiClient.signAndExecuteTransactionBlock({
+      signer,
+      transactionBlock: txb,
+    });
+    const transactionResponse = await suiClient.waitForTransactionBlock({
+      digest: result.digest,
+    });
+    console.log(transactionResponse);
+    return { code: 200, data: transactionResponse, status: true };
+  } catch (e) {
+    return { code: 401, data: "Private key is invalid!", status: false };
   }
-  const tokenInfo = await getTokenInfo(param.token);
-  if (!tokenInfo) return { code: 400, data: "Token not found", status: false };
-
-  const scaledAmount = param.amount * 10 ** tokenInfo.decimals;
-  const txb = new TransactionBlock();
-  txb.setGasBudget(500000000);
-  // @ts-ignore
-  const splitCoint = txb.splitCoins(txb.object(transferToken.coinObjectId), [
-    scaledAmount,
-  ]);
-  txb.transferObjects([splitCoint], txb.pure(param.to));
-  const result = await suiClient.signAndExecuteTransactionBlock({
-    signer,
-    transactionBlock: txb,
-  });
-  const transactionResponse = await suiClient.waitForTransactionBlock({
-    digest: result.digest,
-  });
-  console.log(transactionResponse);
-  return transactionResponse;
 }
 
 async function getTokenObjects(coinType: string, address: string) {
