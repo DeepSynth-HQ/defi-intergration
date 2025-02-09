@@ -2,7 +2,12 @@ import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
 
-import { IBalanceRequest, ICetusSwap, ICreatePool } from "./sui/type.js";
+import {
+  IAddLiquidity,
+  IBalanceRequest,
+  ICetusSwap,
+  ICreatePool,
+} from "./sui/type.js";
 import {
   addLiquidity,
   cetusSwap,
@@ -14,6 +19,7 @@ import {
   getUserBalance,
   getWalletBalances,
 } from "./sui/cetus.js";
+import { getPoolByTVL } from "./sui/bluefin.js";
 
 //init keypair
 
@@ -84,12 +90,23 @@ app.post("/createPool", async (_req, res) => {
   }
 });
 
-app.get("/getUsdcPool", async (_req, res) => {
-  const result = await addLiquidity(
-    _req.query.poolId as string,
-    _req.query.privateKey as string
-  );
-  res.send(result);
+app.post("/addLiquidity", async (_req, res) => {
+  try {
+    const body = _req.body as IAddLiquidity;
+    const result = await addLiquidity(body);
+    res.send(result);
+  } catch (e) {
+    res.send({ code: 400, data: "Invalid params", status: false });
+  }
+});
+
+app.get("/getPoolByTVL", async (_req, res) => {
+  const range = _req.query.range as string;
+  if (!range) {
+    res.send({ code: 400, data: "Invalid params", status: false });
+  }
+  const resu = await getPoolByTVL(parseInt(range));
+  res.send(resu);
 });
 
 app.listen(3000, () => {

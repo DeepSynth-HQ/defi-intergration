@@ -13,7 +13,12 @@ import {
   printTransaction,
 } from "@cetusprotocol/cetus-sui-clmm-sdk";
 import { createSigner, init } from "./init.js";
-import { ICetusSwap, ICoinResponse, ICreatePool } from "./type.js";
+import {
+  IAddLiquidity,
+  ICetusSwap,
+  ICoinResponse,
+  ICreatePool,
+} from "./type.js";
 import { stat } from "fs";
 
 // global config
@@ -415,8 +420,8 @@ export async function getPoolInfo(poolId: string) {
   }
 }
 
-export async function addLiquidity(poolId: string, privateKey: string) {
-  const pool = await cetusClmmSDK.Pool.getPool(poolId);
+export async function addLiquidity(params: IAddLiquidity) {
+  const pool = await cetusClmmSDK.Pool.getPool(params.poolId);
   if (!pool) return { code: 400, data: "Pool not found", status: false };
   const curSqrtPrice = new BN(pool.current_sqrt_price);
   const tickLower =
@@ -433,7 +438,6 @@ export async function addLiquidity(poolId: string, privateKey: string) {
     10;
   const slippageTolerance = new Percentage(new BN(5), new BN(100));
 
-  const totalAmount = "2";
   //simulate token price
   const tokenPriceA = "1.1";
   const tokenPriceB = "1";
@@ -443,7 +447,7 @@ export async function addLiquidity(poolId: string, privateKey: string) {
       tickLower,
       tickUpper,
       curSqrtPrice,
-      totalAmount,
+      params.totalAmount.toString(),
       tokenPriceA,
       tokenPriceB
     );
@@ -493,20 +497,27 @@ export async function addLiquidity(poolId: string, privateKey: string) {
     };
 
     try {
-      const signer = createSigner(privateKey);
+      const signer = createSigner(params.privateKey);
       if (!signer) {
         return { code: 400, data: "Private key is invalid", status: false };
       }
-      const balance = await getTokenBalance(
+      const balanceCheckTokenA = await balanceCheck(
         signer.toSuiAddress(),
-        pool.coinTypeA
+        pool.coinTypeA, //update
+        amountA
       );
 
-      const balance2 = await getTokenBalance(
+      const balanceCheckTokenB = await balanceCheck(
         signer.toSuiAddress(),
-        pool.coinTypeB
+        pool.coinTypeB, //update
+        amountB
       );
-      console.log("balance", balance, balance2, amountA, amountB);
+      if (balanceCheckTokenA === -1 || balanceCheckTokenB === -1) {
+        return { code: 400, data: "Error fetching balance", status: false };
+      }
+      if (balanceCheckTokenA === -2 || balanceCheckTokenB === -2) {
+        return { code: 400, data: "Insufficient balance", status: false };
+      }
 
       cetusClmmSDK.senderAddress = signer.toSuiAddress();
       const payload = await cetusClmmSDK.Position.createAddLiquidityPayload(
@@ -528,7 +539,6 @@ export async function addLiquidity(poolId: string, privateKey: string) {
       return { code: 400, data: "Failed to sign transaction", status: false };
     }
   } catch (e) {
-    console.log(e);
-    return e;
+    return { code: 501, data: e, status: false };
   }
 }

@@ -35,3 +35,110 @@ export type ICreatePool = {
   poolUri: string;
   privateKey: string;
 };
+
+export type IAddLiquidity = {
+  poolId: string;
+  privateKey: string;
+  totalAmount: number;
+};
+
+export type ITVLPoolResponse = {
+  address: string;
+  config: {
+    defaultRange: string;
+    defaultRangePoint: string[];
+    tickSpacing: number;
+  };
+  day: {
+    apr: {
+      feeApr: string;
+      rewardApr: string;
+      total: string;
+    };
+    fee: string;
+    priceMax: string;
+    priceMin: string;
+    volume: string;
+    volumeQuoteQty: string;
+  };
+  feeRate: string;
+  month: {
+    apr: {
+      feeApr: string;
+      rewardApr: string;
+      total: string;
+    };
+    fee: string;
+    priceMax: string;
+    priceMin: string;
+    volume: string;
+    volumeQuoteQty: string;
+  };
+  price: string;
+  rewards: {
+    dailyRewards: string;
+    dailyRewardsUsd: string;
+    endTime: string;
+    perSecondRewards: string;
+    token: {
+      address: string;
+      circulatingSupply: string;
+      decimals: number;
+      hasBluefinPools: boolean;
+      isVerified: boolean;
+      logoURI: string;
+      name: string;
+      rfqSupported: boolean;
+      symbol: string;
+      totalSupply: string;
+    };
+    totalReward: string;
+  }[];
+  symbol: string;
+  tags: string[];
+  tokenA: {
+    amount: string;
+    info: {
+      address: string;
+      circulatingSupply: string;
+      decimals: number;
+      hasBluefinPools: boolean;
+      isVerified: boolean;
+      logoURI: string;
+      name: string;
+      rfqSupported: boolean;
+      symbol: string;
+      totalSupply: string;
+    };
+  };
+  tokenB: {
+    amount: string;
+    info: {
+      address: string;
+      circulatingSupply: string;
+      decimals: number;
+      hasBluefinPools: boolean;
+      isVerified: boolean;
+      logoURI: string;
+      name: string;
+      rfqSupported: boolean;
+      symbol: string;
+      totalSupply: string;
+    };
+  };
+  totalApr: string;
+  tvl: string;
+  verified: boolean;
+  week: {
+    apr: {
+      feeApr: string;
+      rewardApr: string;
+      total: string;
+    };
+    fee: string;
+    priceMax: string;
+    priceMin: string;
+    volume: string;
+    volumeQuoteQty: string;
+  };
+};
