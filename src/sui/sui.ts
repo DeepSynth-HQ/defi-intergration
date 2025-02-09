@@ -52,7 +52,8 @@ export async function transfer(param: ITransferRequest) {
     console.log(transactionResponse);
     return { code: 200, data: transactionResponse, status: true };
   } catch (e) {
-    return { code: 401, data: "Private key is invalid!", status: false };
+    // @ts-ignore
+    return { code: 401, data: e.message, status: false };
   }
 }
 
