@@ -1,7 +1,24 @@
-# 🚀Swap API
 
-This project using [Cetus API](https://cetus-1.gitbook.io/cetus-docs) to implement Sui network token swapping
-Current network: Testnet
+# DeepSynth - Defi-intergration 🐙 
+
+This project implement 💧 Sui network defi intergration. The current network is Testnet. The project provides various endpoints for interacting with the Sui blockchain, including getting token, performing swaps, managing liquidity pools, and retrieving pool...
+
+![image](https://github.com/user-attachments/assets/fc503a14-8dc2-4161-86f9-bb3d9cdea471)
+
+
+# Table of Contents 🌈
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+
+
+# Overview
+This project implement some APIs, SDKs to create endpoints to interact with defi on 💧SUI network, using the APIs and SDKs of **[SUI](https://sdk.mystenlabs.com/typescript)**, **[Cetus](https://www.cetus.zone/)**, **[Bluefin](https://bluefin-exchange.readme.io/reference/introduction)** to:
+- Function about balance info like get user balances, get token info
+- Interact with defi: create clmm pool, add liquidity, swap, transfer.
+- Tracking the market info: get APR of a token, get some pool with the highest TVL 
+
+# 🚀Features
 
 Endpoints: 
 1. GET /balance
@@ -402,7 +419,7 @@ Endpoints:
   }
   ```
 
-## 📂 Project Structure
+# 📂 Project Structure
 
 - `src/sui/init.ts` : Init the wallet and keypair by giving private key
 - `src/sui/cetos.ts` : Cetos Swap implementation
