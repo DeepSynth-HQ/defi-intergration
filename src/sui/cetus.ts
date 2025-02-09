@@ -220,7 +220,23 @@ export async function getWalletBalances(address: string) {
         };
       })
     );
-    return { code: 200, status: true, data: formatedCoins };
+
+    const mergeCoins = formatedCoins.reduce((acc, coin) => {
+      if (coin) {
+        const existingCoin = acc.find(
+          (c: ICoinResponse) => c.coinType === coin?.coinType
+        );
+        if (existingCoin) {
+          // @ts-ignore
+          existingCoin.balance += coin?.balance;
+        } else {
+          // @ts-ignore
+          acc.push(coin);
+        }
+      }
+      return acc;
+    }, []);
+    return { code: 200, status: true, data: mergeCoins };
   } catch (error) {
     return { code: 401, status: false, data: "Error fetching balance" };
   }
