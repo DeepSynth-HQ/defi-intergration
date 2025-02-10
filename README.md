@@ -30,8 +30,10 @@ Endpoints:
 7. POST /createPool
 8. POST /addLiquidity
 9. GET /getPoolByTVL
-10. GET /getAPRByToken
-11. POST /transfer
+10. POST / createAccount
+11. POST / restoreAccount
+12. GET /getAPRByToken
+13. POST /transfer
     
 ## 1. GET /balance
 
@@ -425,3 +427,51 @@ Endpoints:
 - `src/sui/cetos.ts` : Cetos Swap implementation
 - `src/sui/type.ts` : Types
 - `src/index.ts`
+
+## 10. POST /createAccount
+- Description: Create a new account with a random private key.
+- Response:
+  ```json
+  {
+    "code": 200,
+    "data": {
+      "address": "0x...",
+      "privateKey": "base64_encoded_private_key"
+    },
+    "status": true
+  }
+  ```
+- Error:
+  ```json
+  { "code": 400, "data": "Failed to create account", "status": false }
+  ```
+  ```json
+  { "code": 500, "data": "Error creating account", "status": false }
+  ```
+
+## 11. POST /restoreAccount  
+- Description: Restore an account using an existing private key.
+- Body Parameters:
+  - privateKey(string): Base64 encoded private key
+- Response:
+  ```json
+  {
+    "code": 200, 
+    "data": {
+      "address": "0x...",
+      "privateKey": "base64_encoded_private_key"
+    },
+    "status": true
+  }
+  ```
+- Error:
+  ```json
+  { "code": 400, "data": "Private key is required", "status": false }
+  ```
+  ```json
+  { "code": 400, "data": "Failed to restore account", "status": false }
+  ```
+  ```json
+  { "code": 500, "data": "Error restoring account", "status": false }
+  ```
+

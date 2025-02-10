@@ -20,6 +20,10 @@ import {
   getUserBalance,
   getWalletBalances,
 } from "./sui/cetus.js";
+import {
+  createAccount, restoreAccount
+} from "./sui/init.js";
+import { getPoolByTVL } from "./sui/bluefin.js";
 import { getAPRByToken, getPoolByTVL } from "./sui/bluefin.js";
 import { transfer } from "./sui/sui.js";
 
@@ -63,6 +67,41 @@ app.get("/allTokens", async (_req, res) => {
   const result = await getWalletBalances((_req.query.address as string) || "s");
   res.send(result);
 });
+
+app.post("/createAccount", async (_req, res) => {
+  try {
+    const result = await createAccount();
+    if (!result) {
+      res.send({ code: 400, data: "Failed to create account", status: false });
+      return;
+    }
+    res.send({ code: 200, data: result, status: true });
+  } catch (e) {
+    res.send({ code: 500, data: "Error creating account", status: false });
+  }
+});
+
+
+app.post("/restoreAccount", async (_req, res) => {
+  try {
+    const privateKey = _req.body.privateKey;
+    if (!privateKey) {
+      res.send({ code: 400, data: "Private key is required", status: false });
+      return;
+    }
+    const result = await restoreAccount(privateKey);
+    if (!result) {
+      res.send({ code: 400, data: "Failed to restore account", status: false });
+      return;
+    }
+    res.send({ code: 200, data: result, status: true });
+  } catch (e) {
+    res.send({ code: 500, data: "Error restoring account", status: false });
+  }
+});
+
+
+
 
 app.get("/tokensByName", async (_req, res) => {
   const result = await getTokenInfoByName((_req.query.name as string) || "SUI");
