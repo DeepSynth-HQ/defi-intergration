@@ -116,7 +116,7 @@ export async function cetusSwap(param: ICetusSwap) {
         amount: res.amount.toString(),
         amount_limit: amountLimit.toString(),
       });
-    tx.setGasBudget(500000000);
+    tx.setGasBudget(5000000);
     try {
       await tx.transferObjects(
         [coinABs[0], coinABs[1]],
