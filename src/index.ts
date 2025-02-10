@@ -20,10 +20,7 @@ import {
   getUserBalance,
   getWalletBalances,
 } from "./sui/cetus.js";
-import {
-  createAccount, restoreAccount
-} from "./sui/init.js";
-import { getPoolByTVL } from "./sui/bluefin.js";
+import { createAccount, restoreAccount } from "./sui/init.js";
 import { getAPRByToken, getPoolByTVL } from "./sui/bluefin.js";
 import { transfer } from "./sui/sui.js";
 import { NaViIntergration } from "./sui/navi.js";
@@ -82,7 +79,6 @@ app.post("/createAccount", async (_req, res) => {
   }
 });
 
-
 app.post("/restoreAccount", async (_req, res) => {
   try {
     const privateKey = _req.body.privateKey;
@@ -100,9 +96,6 @@ app.post("/restoreAccount", async (_req, res) => {
     res.send({ code: 500, data: "Error restoring account", status: false });
   }
 });
-
-
-
 
 app.get("/tokensByName", async (_req, res) => {
   const result = await getTokenInfoByName((_req.query.name as string) || "SUI");
