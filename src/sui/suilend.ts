@@ -9,7 +9,7 @@
 // });
 
 // export async function lend() {
-//   console.log(LENDING_MARKET_ID, LENDING_MARKET_TYPE);
+//   const mnemonic = console.log(LENDING_MARKET_ID, LENDING_MARKET_TYPE);
 //   //   const suilendClient = await SuilendClient.initialize(
 //   //     LENDING_MARKET_ID,
 //   //     LENDING_MARKET_TYPE,

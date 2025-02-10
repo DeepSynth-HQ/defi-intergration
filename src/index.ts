@@ -155,9 +155,12 @@ app.post("/transfer", async (_req, res) => {
   res.send(result);
 });
 
-app.get("/navi", async (_req, res) => {
-  const navi = new NaViIntergration("testnet");
-  const result = await navi.getPool("SUI", "privateKey");
+app.get("/fastLoan", async (_req, res) => {
+  const navi = new NaViIntergration("mainnet");
+  const result = await navi.fashloanSui(
+    _req.body.amount || 0,
+    _req.body.memonic || ""
+  );
   res.send(result);
 });
 
