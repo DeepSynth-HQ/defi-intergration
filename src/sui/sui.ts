@@ -18,10 +18,25 @@ export async function transfer(param: ITransferRequest) {
     const coins = await getWalletBalances(signer.toSuiAddress());
     if (typeof coins.data == "string")
       return { code: 400, data: coins.data, status: false };
-    const transferToken = coins.data.find(
+
+    const transferTokens = coins.data.filter(
       // @ts-ignore
       (coin) => coin.coinType === param.token
     );
+
+    const transferToken = transferTokens.reduce((prev, current) => {
+      // @ts-ignore
+      return prev.balance > current.balance ? prev : current;
+    }, transferTokens[0]);
+
+    if (!transferToken)
+      return { code: 400, data: "No tokens available", status: false };
+
+    // const transferToken = coins.data.find(
+    //   // @ts-ignore
+    //   (coin) => coin.coinType === param.token
+    // );
+
     if (!transferToken)
       return { code: 400, data: "Token not found", status: false };
     console.log(transferToken);
