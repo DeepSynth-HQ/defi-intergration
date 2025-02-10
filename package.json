@@ -8,6 +8,7 @@
   "dependencies": {
     "@cetusprotocol/cetus-sui-clmm-sdk": "^5.2.0",
     "@mysten/sui": "^1.21.1",
+    "@mysten/sui.js": "^0.54.1",
     "@project-serum/anchor": "^0.26.0",
     "@suilend/sdk": "^1.1.38",
     "@types/cors": "^2.8.13",

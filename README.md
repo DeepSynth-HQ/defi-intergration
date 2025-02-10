@@ -1,7 +1,24 @@
-# 🚀Swap API
 
-This project using [Cetus API](https://cetus-1.gitbook.io/cetus-docs) to implement Sui network token swapping
-Current network: Testnet
+# DeepSynth - Defi-intergration 🐙 
+
+This project implement 💧 Sui network defi intergration. The current network is Testnet. The project provides various endpoints for interacting with the Sui blockchain, including getting token, performing swaps, managing liquidity pools, and retrieving pool...
+
+![image](https://github.com/user-attachments/assets/fc503a14-8dc2-4161-86f9-bb3d9cdea471)
+
+
+# Table of Contents 🌈
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+
+
+# Overview
+This project implement some APIs, SDKs to create endpoints to interact with defi on 💧SUI network, using the APIs and SDKs of **[SUI](https://sdk.mystenlabs.com/typescript)**, **[Cetus](https://www.cetus.zone/)**, **[Bluefin](https://bluefin-exchange.readme.io/reference/introduction)** to:
+- Function about balance info like get user balances, get token info
+- Interact with defi: create clmm pool, add liquidity, swap, transfer.
+- Tracking the market info: get APR of a token, get some pool with the highest TVL 
+
+# 🚀Features
 
 Endpoints: 
 1. GET /balance
@@ -15,7 +32,9 @@ Endpoints:
 9. GET /getPoolByTVL
 10. POST / createAccount
 11. POST / restoreAccount
-
+12. GET /getAPRByToken
+13. POST /transfer
+    
 ## 1. GET /balance
 
 - Description: Get balance of a token
@@ -323,8 +342,86 @@ Endpoints:
 - REquest Params:
   - range(number): amount of pool to take.
 
+## 10. GET /getAPRByToken
+- Description: APR info of a token.
+- REquest Params:
+  - token(string): token type.
+- Sample response
+```json
+{
+    "code": 200,
+    "status": true,
+    "data": {
+        "token": "0x2::sui::SUI",
+        "daily": "105.9924152%",
+        "Weekly": "205.9530697%",
+        "monthly": "190.3915144%"
+    }
+}
 
-## 📂 Project Structure
+```
+
+- Error:
+  - Token not found
+    ```json
+      {
+    "code": 404,
+    "status": false,
+    "message": "Token not found"
+    }
+    ```
+
+## 8. POST /transfer
+- Description: Transfer token to an account.
+- Body Parameters:
+  - privateKey(string): private key,
+  - to(string): receipent address,
+  - token(string): tokenType;
+  - amount(number): amount of token
+- Ex: transfer 10KTY to 0x348b0eabee75d66bcc81a96c3e523a9cc20284902941185aaff408db81261d91
+  ```json
+  {
+    "privateKey": "",
+    "to": "0x348b0eabee75d66bcc81a96c3e523a9cc20284902941185aaff408db81261d91",
+    "token": "0xafcfe86c638c4d94e0765fc76ae849194da9ddddbb64af8b8908d49108c9bf7b::kty::KTY",
+    "amount": 10
+  }
+  ```
+- Sample response:
+  ```json
+  {
+    "digest": "CF3voi7dYa4PMyucen9KJbwqQpmMHUHKgNJ4igBEPXxU",
+    "timestampMs": "1739123842478",
+    "checkpoint": "161602383"
+  }
+  ```
+
+-Error:
+  ```json
+  {
+    "code": 401,
+    "data": "Private key is invalid!",
+    "status": false
+  }
+
+  ```
+  ```json
+  {
+    "code": 400,
+    "data": "Token not found",
+    "status": false
+  }
+  ```
+
+  ```json
+  {
+    "code": 400,
+    "data": "Insufficient balance",
+    "status": false
+  }
+  ```
+
+# 📂 Project Structure
 
 - `src/sui/init.ts` : Init the wallet and keypair by giving private key
 - `src/sui/cetos.ts` : Cetos Swap implementation

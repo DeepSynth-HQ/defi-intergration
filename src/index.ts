@@ -7,6 +7,7 @@ import {
   IBalanceRequest,
   ICetusSwap,
   ICreatePool,
+  ITransferRequest,
 } from "./sui/type.js";
 import {
   addLiquidity,
@@ -19,11 +20,12 @@ import {
   getUserBalance,
   getWalletBalances,
 } from "./sui/cetus.js";
-
 import {
   createAccount, restoreAccount
 } from "./sui/init.js";
 import { getPoolByTVL } from "./sui/bluefin.js";
+import { getAPRByToken, getPoolByTVL } from "./sui/bluefin.js";
+import { transfer } from "./sui/sui.js";
 
 //init keypair
 
@@ -146,6 +148,17 @@ app.get("/getPoolByTVL", async (_req, res) => {
   }
   const resu = await getPoolByTVL(parseInt(range));
   res.send(resu);
+});
+
+app.get("/getAPRByToken", async (_req, res) => {
+  const result = await getAPRByToken(_req.query.token as string);
+  res.send(result);
+});
+
+app.post("/transfer", async (_req, res) => {
+  const body = _req.body as ITransferRequest;
+  const result = await transfer(body);
+  res.send(result);
 });
 
 app.listen(3000, () => {

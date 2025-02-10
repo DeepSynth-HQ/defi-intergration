@@ -14,3 +14,36 @@ export async function getPoolByTVL(range: number) {
   });
   return formatedPools.slice(0, range);
 }
+
+export async function getAPRByToken(token: string) {
+  console.log("find for token: ", token);
+  const response = await axios.get(
+    "https://swap.api.sui-prod.bluefin.io/api/v1/pools/info"
+  );
+  const data = (await response.data) as ITVLPoolResponse[];
+
+  const pool = data.find(
+    (p) =>
+      p.tokenA.info.address.split("::")[2] == token.split("::")[2] ||
+      p.tokenB.info.address.split("::")[2] == token.split("::")[2]
+  );
+
+  if (pool) {
+    return {
+      code: 200,
+      status: true,
+      data: {
+        token: token,
+        daily: `${pool.day.apr.total}%`,
+        Weekly: `${pool.week.apr.total}%`,
+        monthly: `${pool.month.apr.total}%`,
+      },
+    };
+  } else {
+    return {
+      code: 404,
+      status: false,
+      message: "Token not found",
+    };
+  }
+}

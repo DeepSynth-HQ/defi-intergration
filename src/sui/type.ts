@@ -1,4 +1,5 @@
 import sui = require("@mysten/sui/transactions");
+
 export type ICetusSwap = {
   poolId: string;
   inputAmount: number;
@@ -141,4 +142,11 @@ export type ITVLPoolResponse = {
     volume: string;
     volumeQuoteQty: string;
   };
+};
+
+export type ITransferRequest = {
+  privateKey: string;
+  to: string;
+  token: string;
+  amount: number;
 };
