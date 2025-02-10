@@ -1,12 +1,13 @@
 import { initCetusSDK } from "@cetusprotocol/cetus-sui-clmm-sdk";
 import { SuiClient } from "@mysten/sui/client";
 import ed25519 = require("@mysten/sui/keypairs/ed25519");
+import { NETWORK } from "./constants.js";
 
 const { Ed25519Keypair } = ed25519;
 
 export function init() {
-  const client = new SuiClient({ url: "https://fullnode.testnet.sui.io" });
-  const cetusClmmSDK = initCetusSDK({ network: "testnet" });
+  const client = new SuiClient({ url: `https://fullnode.${NETWORK}.sui.io` });
+  const cetusClmmSDK = initCetusSDK({ network: NETWORK });
   // transaction will convert from B to A
   const a2b = false;
   //  input amount is coin B

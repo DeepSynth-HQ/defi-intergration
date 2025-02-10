@@ -4,8 +4,9 @@ import { getFullnodeUrl, SuiClient } from "@mysten/sui.js/client";
 import { decodeSuiPrivateKey } from "@mysten/sui.js/cryptography";
 import { Ed25519Keypair } from "@mysten/sui.js/keypairs/ed25519";
 import { getTokenInfo, getWalletBalances } from "./cetus.js";
+import { NETWORK } from "./constants.js";
 
-const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
+const suiClient = new SuiClient({ url: getFullnodeUrl(NETWORK) });
 
 export async function transfer(param: ITransferRequest) {
   try {
@@ -28,6 +29,9 @@ export async function transfer(param: ITransferRequest) {
     // check balance
     // @ts-ignore
     if (transferToken.balance < param.amount) {
+      // @ts-ignore
+
+      console.log(transferToken.balance, param.amount);
       return { code: 400, data: "Insufficient balance", status: false };
     }
     const tokenInfo = await getTokenInfo(param.token);
@@ -36,7 +40,7 @@ export async function transfer(param: ITransferRequest) {
 
     const scaledAmount = param.amount * 10 ** tokenInfo.decimals;
     const txb = new TransactionBlock();
-    txb.setGasBudget(500000000);
+    txb.setGasBudget(5000000);
     // @ts-ignore
     const splitCoint = txb.splitCoins(txb.object(transferToken.coinObjectId), [
       scaledAmount,

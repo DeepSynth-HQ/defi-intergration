@@ -26,6 +26,7 @@ import {
 import { getPoolByTVL } from "./sui/bluefin.js";
 import { getAPRByToken, getPoolByTVL } from "./sui/bluefin.js";
 import { transfer } from "./sui/sui.js";
+import { NaViIntergration } from "./sui/navi.js";
 
 //init keypair
 
@@ -158,6 +159,12 @@ app.get("/getAPRByToken", async (_req, res) => {
 app.post("/transfer", async (_req, res) => {
   const body = _req.body as ITransferRequest;
   const result = await transfer(body);
+  res.send(result);
+});
+
+app.get("/navi", async (_req, res) => {
+  const navi = new NaViIntergration("testnet");
+  const result = await navi.getPool("SUI", "privateKey");
   res.send(result);
 });
 
